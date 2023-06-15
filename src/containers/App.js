@@ -1,49 +1,42 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import CardList from "../components/CardList";
 import SearchBox from "../components/SearchBox";
 import Scroll from "../components/Scroll";
 import ErrorBoundry from "../components/ErrorBoundry";
 import "./App.css";
 
-class App extends Component {
-  constructor() {
-    super();
-    this.state = {
-      robots: [],
-      searchBox: "",
-    };
-  }
+function App() {
 
-  componentDidMount() {
+  const [robots, setRobots] = useState([]);
+  const [searchBox, setSearchBox] = useState("");
+
+  useEffect(() => {
     fetch("https://jsonplaceholder.typicode.com/users")
       .then((response) => response.json())
-      .then((users) => this.setState({ robots: users }));
-  }
+      .then((users) => setRobots(users));
+  },[]);// [] is to stop the useEffect infinite loop, add vairables in [] that effect the changes to useEffect
 
-  onSearchChange = (event) => {
-    this.setState({ searchBox: event.target.value });
+  const onSearchChange = (event) => {
+    setSearchBox(event.target.value);
   };
 
-  render() {
-    const { robots, searchBox } = this.state;
-    const filteredRobots = robots.filter((robot) => {
-      return robot.name.toLowerCase().includes(searchBox.toLowerCase());
-    });
+  const filteredRobots = robots.filter((robot) => {
+    return robot.name.toLowerCase().includes(searchBox.toLowerCase());
+  });
 
-    return !robots.length ? (
-      <h1>Loading...</h1>
-    ) : (
-      <div className="tc">
-        <h1 className="f1">RoboFriends</h1>
-        <SearchBox searchChange={this.onSearchChange} />
-        <Scroll>
-          <ErrorBoundry>
-            <CardList robots={filteredRobots} />
-          </ErrorBoundry>
-        </Scroll>
-      </div>
-    );
-  }
+  return !robots.length ? (
+    <h1>Loading...</h1>
+  ) : (
+    <div className="tc">
+      <h1 className="f1">RoboFriends</h1>
+      <SearchBox searchChange={onSearchChange} />
+      <Scroll>
+        <ErrorBoundry>
+          <CardList robots={filteredRobots} />
+        </ErrorBoundry>
+      </Scroll>
+    </div>
+  );
 }
 
 export default App;
